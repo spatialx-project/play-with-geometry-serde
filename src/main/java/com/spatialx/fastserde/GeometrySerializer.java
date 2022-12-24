@@ -49,13 +49,13 @@ public class GeometrySerializer {
   public static Geometry deserialize(GeometryBuffer buffer) {
     checkBufferSize(buffer, 8);
     int preambleByte = buffer.getByte(0) & 0xFF;
-    int wkbType = preambleByte & 0x0F;
-    CoordinateType coordType = CoordinateType.valueOf(preambleByte >> 4);
+    int wkbType = preambleByte >> 4;
+    CoordinateType coordType = CoordinateType.valueOf((preambleByte & 0x0F) >> 1);
+    boolean hasSrid = (preambleByte & 0x01) != 0;
     buffer.setCoordinateType(coordType);
     int srid = 0;
-    int srid2 = buffer.getByte(1);
-    if (srid2 != 0) {
-      srid2 = (srid2 & 0x7F) << 16;
+    if (hasSrid) {
+      int srid2 = (buffer.getByte(1) & 0xFF) << 16;
       int srid1 = (buffer.getByte(2) & 0xFF) << 8;
       int srid0 = buffer.getByte(3) & 0xFF;
       srid = (srid2 | srid1 | srid0);
@@ -415,12 +415,13 @@ public class GeometrySerializer {
     buffer.setCoordinateType(coordType);
 
     // Set header bytes [preamble][srid (3 bytes)][numCoordinates (4 bytes)]
-    int preambleByte = (coordType.value << 4) | wkbType;
+    int hasSridBit = (srid != 0 ? 1 : 0);
+    int preambleByte = (wkbType << 4) | (coordType.value << 1) | hasSridBit;
     buffer.putByte(0, (byte) preambleByte);
     if (srid != 0) {
       // Store SRID in the next 3 bytes in big endian byte order, with the highest bit set
       // indicating that SRID need to be decoded when deserializing it.
-      buffer.putByte(1, (byte) (0x80 | (srid >> 16)));
+      buffer.putByte(1, (byte) (srid >> 16));
       buffer.putByte(2, (byte) (srid >> 8));
       buffer.putByte(3, (byte) srid);
     }
