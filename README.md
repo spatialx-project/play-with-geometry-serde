@@ -13,8 +13,15 @@ to evaluate the performance of these geometry serdes.
 ```
 
 ## Benchmark results
+This is the result of benchmark on a laptop with a 2 GHz 4 Cores Intel Core
+i5 CPU and 16GB of RAM, using OpenJDK version `1.8.0_352`. We are submitting a paper to VLDB (Very Large Data Bases) titled "GeoLake: Bringing Geospatial Support to Lakehouses" and also referencing this experimental result.
 
-This is the result of benchmark on Intel(R) Xeon(R) Platinum 8269CY CPU @ 2.50GHz, using OpenJDK version `1.8.0_352`.
+
+
+![serde](serde.png)
+
+
+We also run tests on Intel(R) Xeon(R) Platinum 8269CY CPU @ 2.50GHz, also using OpenJDK version `1.8.0_352`, below is the result.
 
 ```
 Benchmark                                                   (segments)   Mode  Cnt         Score         Error  Units
